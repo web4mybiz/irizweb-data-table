@@ -80,6 +80,24 @@ class IrizDataTable{
         return ob_get_clean();
     }
 
+    public function render_shortcode_datalist() {
+
+        global $wpdb;
+        $table_name = $wpdb->prefix . $this->table_name;
+
+        // Use prepared statement to prevent SQL injection
+        $data = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name"));
+
+        ob_start(); ?>
+        <ul>
+            <?php foreach ($data as $item): ?>
+                <li><?php echo esc_html($item->iriz_name.' '.$item->iriz_address); ?></li>
+            <?php endforeach; ?>
+        </ul>
+        <?php
+        return ob_get_clean();
+    }
+
     public function save_form_submission() {
         if (!isset($_POST['iriz_data_nonce']) || !wp_verify_nonce($_POST['iriz_data_nonce'], 'iriz_data_nonce')) {
             wp_die('Invalid request!');
@@ -103,8 +121,10 @@ class IrizDataTable{
         $table_name = $wpdb->prefix . $this->table_name;
         
         //Insert sanitized array of data
-        $wpdb->insert($table_name, $sanitized_data);
-
+        $result = $wpdb->insert($table_name, $sanitized_data);
+        if (!$result) {
+            wp_die('Error inserting data');
+        }
         wp_safe_redirect('/');
         exit();
     }
