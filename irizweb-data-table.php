@@ -37,17 +37,19 @@ class Iriz_Data_Table{
         add_action('admin_post_iriz_data_submit', array($this, 'save_form_submission'));
     }
 
-
+    // Creating table on plugin activation
     public function plugin_activation() {
         $this->create_data_table();
     }
 
+    // Deleting table on plugin deactivation
     public function plugin_deactivation() {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->table_name;
         $wpdb->query("DROP TABLE IF EXISTS $table_name");
     }
 
+    // Query for table creation
     public function create_data_table() {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->table_name;
@@ -68,6 +70,7 @@ class Iriz_Data_Table{
         }
     }
 
+    // Form HTML for the shortcode
     public function render_shortcode_dataform() {
         ob_start(); ?>
         <form method="POST" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
@@ -85,6 +88,7 @@ class Iriz_Data_Table{
         return ob_get_clean();
     }
 
+    // Creating the data list to display for shortcode
     public function render_shortcode_datalist() {
 
         global $wpdb;
@@ -92,17 +96,21 @@ class Iriz_Data_Table{
 
         // Use prepared statement to prevent SQL injection
         $data = $wpdb->get_results($wpdb->prepare("SELECT * FROM $table_name"));
-
-        ob_start(); ?>
-        <ul>
-            <?php foreach ($data as $item): ?>
-                <li><?php echo esc_html($item->iriz_name.' '.$item->iriz_email.' '.$item->iriz_address.' '.$item->iriz_city.' '.$item->iriz_state.' '.$item->iriz_country); ?></li>
-            <?php endforeach; ?>
-        </ul>
-        <?php
-        return ob_get_clean();
+        if (!empty($data)) {
+            ob_start(); ?>
+            <ul>
+                <?php foreach ($data as $item): ?>
+                    <li><?php echo esc_html($item->iriz_name.' '.$item->iriz_email.' '.$item->iriz_address.' '.$item->iriz_city.' '.$item->iriz_state.' '.$item->iriz_country); ?></li>
+                <?php endforeach; ?>
+            </ul>
+            <?php
+            return ob_get_clean();
+        } else {
+            return '<p>No data available</p>';
+        }
     }
 
+    // Saving submissions in the database
     public function save_form_submission() {
         if (!isset($_POST['iriz_data_nonce']) || !wp_verify_nonce($_POST['iriz_data_nonce'], 'iriz_data_nonce')) {
             wp_die('Invalid request!');
@@ -131,7 +139,7 @@ class Iriz_Data_Table{
         if (!$result) {
             wp_die('Error inserting data');
         }
-        wp_safe_redirect('/');
+        wp_redirect( '/' );
         exit();
     }
 }
