@@ -27,7 +27,7 @@ class IrizDataTable{
 
         add_action('init', array($this, 'create_data_table'));
         add_shortcode('iriz-dataform', array($this, 'render_shortcode_dataform'));
-        add_shortcode('iriz-data-list', array($this, 'render_shortcode_datalist'));
+        add_shortcode('iriz-datalist', array($this, 'render_shortcode_datalist'));
 
         add_action('admin_post_iriz_data_submit', array($this, 'save_form_submission'));
     }
