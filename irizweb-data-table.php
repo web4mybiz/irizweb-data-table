@@ -128,9 +128,6 @@ class IrizDataTable{
         wp_safe_redirect('/');
         exit();
     }
-
-
-
 }
 
 $iriz_data_table = new IrizDataTable();
