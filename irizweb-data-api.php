@@ -11,13 +11,17 @@ class Irizweb_Data_API {
         add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
     }
 
+    // Registering endpoints
     public function register_endpoints() {
+        // View endpoint without authentication
+        // Uncomment the line #21 if this requires authentication
         register_rest_route( $this->namespace, '/' . $this->rest_base, array(
             'methods'             => 'GET',
             'callback'            => array( $this, 'get_table_data' ),
             //'permission_callback' => array( $this, 'check_permission' ),
         ) );
 
+        // Data post endpoint with authentication
         register_rest_route( $this->namespace, '/' . $this->rest_base, array(
             'methods'             => 'POST',
             'callback'            => array( $this, 'insert_data' ),
@@ -26,6 +30,7 @@ class Irizweb_Data_API {
         ) );
     }
 
+    // Simple authentication by validating API key
     public function check_permission( $request ) {
         $api_key = $request->get_header( 'DATA-API-KEY' );
 
@@ -36,6 +41,7 @@ class Irizweb_Data_API {
         return true;
     }
 
+    // Post arguments and sanitization
     public function get_endpoint_args() {
         return array(
             'name'    => array(
@@ -66,6 +72,7 @@ class Irizweb_Data_API {
         );
     }
 
+    // Querying records for view endpoint
     public function get_table_data( $request ) {
         global $wpdb;
         $table_name = $wpdb->prefix . $this->table_name;
@@ -75,6 +82,7 @@ class Irizweb_Data_API {
         return new WP_REST_Response( $data, 200 );
     }
 
+    // Inserting data from post request
     public function insert_data( $request ) {
         $data = $request->get_params();
 
