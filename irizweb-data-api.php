@@ -93,9 +93,9 @@ class Irizweb_Data_API {
         $result = $wpdb->insert( $table_name, $insert_data );
 
         if ( $result === false ) {
-            return new WP_REST_Response( array( 'message' => 'Failed to insert data' ), 500 );
+            return new WP_REST_Response( array( 'status' => 500,'message' => 'Failed to insert data' ), 500 );
         }
 
-        return new WP_REST_Response( array( 'message' => 'Data inserted successfully' ), 200 );
+        return new WP_REST_Response( array( 'status' => 200, 'message' => 'Data inserted successfully' ), 200 );
     }
 }
