@@ -5,6 +5,7 @@ class Irizweb_Data_API {
     private $namespace = 'irizweb-data-api/v1';
     private $rest_base = 'data';
     private $table_name = 'irizdata';
+    private $api_key = 'd41d8cd98f00b204e9800998ecf8427e';
 
     public function __construct() {
         add_action( 'rest_api_init', array( $this, 'register_endpoints' ) );
@@ -20,18 +21,16 @@ class Irizweb_Data_API {
         register_rest_route( $this->namespace, '/' . $this->rest_base, array(
             'methods'             => 'POST',
             'callback'            => array( $this, 'insert_data' ),
-            //'permission_callback' => array( $this, 'check_permission' ),
+            'permission_callback' => array( $this, 'check_permission' ),
             'args'                => $this->get_endpoint_args(),
         ) );
     }
 
     public function check_permission( $request ) {
-        if ( ! is_user_logged_in() ) {
-            return new WP_Error( 'rest_forbidden', esc_html__( 'You are not authenticated.' ), array( 'status' => 401 ) );
-        }
+        $api_key = $request->get_header( 'DATA-API-KEY' );
 
-        if ( ! current_user_can( 'manage_options' ) ) {
-            return new WP_Error( 'rest_forbidden', esc_html__( 'You are not authorized.' ), array( 'status' => 403 ) );
+        if ( $api_key !== $this->api_key ) {
+            return new WP_Error( 'rest_forbidden', esc_html__( 'Invalid API key.' ), array( 'status' => 403 ) );
         }
 
         return true;
