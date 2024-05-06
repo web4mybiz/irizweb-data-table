@@ -18,7 +18,12 @@
 
 defined('ABSPATH') or die('Access denied');
 
-class IrizDataTable{
+// Include the class file for API end points
+if ( ! class_exists( 'Irizweb_Data_API' ) ) {
+    require_once plugin_dir_path( __FILE__ ) . 'irizweb-data-api.php';
+}
+
+class Iriz_Data_Table{
     private $table_name = 'irizdata';
 
     public function __construct() {
@@ -91,7 +96,7 @@ class IrizDataTable{
         ob_start(); ?>
         <ul>
             <?php foreach ($data as $item): ?>
-                <li><?php echo esc_html($item->iriz_name.' '.$item->iriz_address); ?></li>
+                <li><?php echo esc_html($item->iriz_name.' '.$item->iriz_email.' '.$item->iriz_address.' '.$item->iriz_city.' '.$item->iriz_state.' '.$item->iriz_country); ?></li>
             <?php endforeach; ?>
         </ul>
         <?php
@@ -113,7 +118,8 @@ class IrizDataTable{
         // Validate and sanitize each field
         foreach ($_POST as $key => $value) {
             if (in_array($key, array('iriz_name', 'iriz_email', 'iriz_address', 'iriz_city', 'iriz_state', 'iriz_country'))) {
-                $sanitized_data[$key] = sanitize_text_field($value);
+                $san_data = sanitize_text_field($value);
+                $sanitized_data[$key] = preg_replace( '/[^a-zA-Z0-9\s\.,-]/', '', $san_data );
             }
         }
 
@@ -130,4 +136,9 @@ class IrizDataTable{
     }
 }
 
-$iriz_data_table = new IrizDataTable();
+if ( class_exists( 'Iriz_Data_Table' ) ) {
+    new Iriz_Data_Table();
+}
+if ( class_exists( 'Irizweb_Data_API' ) ) {
+    new Irizweb_Data_API();
+}
